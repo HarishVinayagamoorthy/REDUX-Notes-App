@@ -99,7 +99,7 @@
   opacity: 0.8;
   background: var(--Secondary, #f5f5f5);
   box-shadow: 2px 4px 16px 0px rgba(32, 53, 98, 0.47);
-  height: 366px !important;
+  height: auto!important;
   margin-top: 20px;
 }
 
@@ -335,4 +335,19 @@ padding: 0%;
 .total-cards-overflow {
 -ms-overflow-style: none;  /* IE and Edge */
 scrollbar-width: none;  /* Firefox */
+}
+.error-message {
+  color: #ff0000; /* Set your desired error message text color */
+  font-size: 14px; /* Set your desired font size for error messages */
+  margin-top: 5px; /* Optional: Add some top margin for spacing */
+}
+.notes-title{
+  color: var(--accent, #203562);
+
+/* H1 */
+font-family: Montserrat;
+font-size: 32px;
+font-style: normal;
+font-weight: 600;
+line-height: 44.8px; /* 140% */
 }

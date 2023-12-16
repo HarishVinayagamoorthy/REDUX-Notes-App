@@ -1,170 +1,116 @@
 import React, { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
-import { Formik } from "formik";
+import { Formik, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import { toast } from 'react-toastify'
 import { add, remove } from "../Redux/notesSlice";
 
+const validationSchema = Yup.object().shape({
+  title: Yup.string().required("Title is required"),
+  notes: Yup.string().required("Notes are required"),
+});
+
 function Notes() {
+  const data = useSelector((state) => state.notes);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const ref1 = useRef(null);
+  const ref2 = useRef(null);
 
-  let data = useSelector((state) => state.notes)
+  const handleDelete = (index) => {
+    dispatch(remove(index));
+    toast.success("Note deleted successfully");
+  };
 
-  let dispatch = useDispatch()
-
-  let ref1 = useRef()
-  let ref2 = useRef()
-  const navigate = useNavigate()
-
-
-
-  let handleDelete = (i) => {
-
-    dispatch(remove(i))
-    toast.success("Notes Deleted successfully")
-
-  }
-
-  let handleAddUser = (values) => {
-    dispatch(add(values))
-    toast.success("notes Created ")
-    ref1.current.value = ""
-    ref2.current.value = ""
-
-  }
-
+  const handleAddUser = (values, formikBag) => {
+    dispatch(add(values));
+    toast.success("Note created successfully");
+    formikBag.resetForm();
+    ref1.current.focus();
+  };
 
   useEffect(() => {
-
-
-    ref1.current.focus()
-  }, [])
+    ref1.current.focus();
+  }, []);
 
   const date = new Date();
   const showTime = date.getMinutes();
 
-
-
-
   return (
-    <><div className="col-sm-9  notes-body">
-      <div className="well notes-text ">
-        <h4 className="notes-titel">Add a Note</h4>
+    <div className="col-sm-9 notes-body">
+      <div className="well notes-text">
+        <h4 className="notes-title">Add a Note</h4>
         <Formik
           initialValues={{
             title: "",
             notes: "",
-
           }}
-          onSubmit={(values) => {
-            handleAddUser(values)
-
+          validationSchema={validationSchema}
+          onSubmit={(values, formikBag) => {
+            handleAddUser(values, formikBag);
           }}
         >
-
-          {({ handleBlur, handleSubmit, handleChange }) => (
+          {({ handleSubmit }) => (
             <form onSubmit={handleSubmit}>
               <div className="form-outline">
-                <input
+                <Field
                   type="text"
-                  ref={ref1}
-                  name='title'
+                  name="title"
                   id="typeText"
                   placeholder="Title"
                   className="form-control"
-                  onBlur={handleBlur} onChange={handleChange}
-
+                  innerRef={ref1}
                 />
+                <ErrorMessage name="title" component="div" className="error-message" />
 
-
-                <textarea
-                  className="form-control"
-                  name='notes'
-                  ref={ref2}
-                  placeholder="Take a note..."
+                <Field
+                  as="textarea"
+                  name="notes"
                   id="textAreaExample"
+                  placeholder="Take a note..."
+                  className="form-control"
                   rows="4"
-                  onBlur={handleBlur} onChange={handleChange}
+                  innerRef={ref2}
+                />
+                <ErrorMessage name="notes" component="div" className="error-message" />
 
-                ></textarea>
-                <button type="submit" className="btn CE-button" >
+                <button type="submit" className="btn CE-button">
                   Create
                 </button>
               </div>
             </form>
           )}
         </Formik>
-
-
-      </div>
-
-
-
-
-      <div className="row">
-        <div className="col-sm-3">
-          <ul className="nav nav-pills nav-stacked nav-ul notes-ul">
-            <li className="notesbtn">
-              <a href="#section1">
-                <i className="fa-solid fa-file-lines"></i> MY Notes
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div className="row ">
-        <div className="col-sm-3 ">
-          <div className=" sub-title ">
-            <p>Recently viewed</p>
-          </div>
-        </div>
       </div>
 
       <div className="row content">
-        <div class="overflow-auto   total-cards-overflow">
-          {
-            data.map((e, i) => {
-              return <><div className="col-sm-4" key={i}>
-
-                <div className="well notes-cards"  >
-
-
-                  <h1 className='cards-title'>{e.title}</h1>
-                  <div className="curd-icons">
-                    <i className="fa-solid fa-pen" onClick={() => {
-
-
-                      navigate(`/edit/${i}`)
-                    }}></i>
-
-                    <i className='fa-solid fa-trash-can' onClick={() => handleDelete(i)}></i>
-                  </div>
-
-
-                  <div class="overflow-auto  cards-overflow">
-                    <p className="notes-para">{e.notes}</p>
-                  </div>
-                  <h5 className="date-time">{showTime} minutes ago</h5>
+        <div className="overflow-auto total-cards-overflow">
+          {data.map((note, index) => (
+            <div className="col-sm-4" key={index}>
+              <div className="well notes-cards">
+                <h1 className="cards-title">{note.title}</h1>
+                <div className="curd-icons">
+                  <i
+                    className="fa-solid fa-pen"
+                    onClick={() => navigate(`/edit/${index}`)}
+                  ></i>
+                  <i
+                    className="fa-solid fa-trash-can"
+                    onClick={() => handleDelete(index)}
+                  ></i>
                 </div>
-
+                <div className="overflow-auto cards-overflow">
+                  <p className="notes-para">{note.notes}</p>
+                </div>
+                <h5 className="date-time">{showTime} minutes ago</h5>
               </div>
-              </>
-
-            })
-          }
+            </div>
+          ))}
         </div>
       </div>
     </div>
-
-    </>
   );
-
-
-
 }
-
-
-
-
-
 
 export default Notes;
